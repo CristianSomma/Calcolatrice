@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles/light.css">
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="scripts/script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Calculator</title>
+</head>
+<body>
+    <div id="main-window">
+        <div class="flex-row" id="nav-container">
+            <ul class="flex-row" id="nav-list">
+                <li>Text</li>
+                <li>Title</li>
+                <li>Text</li>
+            </ul>
+        </div>
+        <div class="flex-row" id="calculator-container">
+            <div class="display-window" id="history-display">
+                <h2>History</h2>
+                <ul id="history-list">
+                </ul>
+            </div>
+            <div class="flex-column" id="primary-window">
+                <div class="display-window" id="numbers-display">
+                    <input type="text" id="value-displayer">
+                </div>
+                <div class="flex-row" id="buttons-container">
+                    <div id="scientific-btns-container">
+                        Scientific Btns
+                    </div>
+                    <div id="main-btns-container">
+                        <button class="primary-btn" onclick="show(this)">7</button>
+                        <button class="primary-btn" onclick="show(this)">8</button>
+                        <button class="primary-btn" onclick="show(this)">9</button>
+                        <button class="primary-btn operational-btn" onclick="show(this)">&divide;</button>
+                        <button class="primary-btn operational-btn" onclick="reset()">AC</button>
+                        <button class="primary-btn" onclick="show(this)">4</button>
+                        <button class="primary-btn" onclick="show(this)">5</button>
+                        <button class="primary-btn" onclick="show(this)">6</button>
+                        <button class="primary-btn operational-btn" onclick="show(this)">&times;</button>
+                        <button class="primary-btn operational-btn" onclick="brackets()">&#40; &#41;</button>
+                        <button class="primary-btn" onclick="show(this)">1</button>
+                        <button class="primary-btn" onclick="show(this)">2</button>
+                        <button class="primary-btn" onclick="show(this)">3</button>
+                        <button class="primary-btn operational-btn" onclick="show(this)">&minus;</button>
+                        <button class="primary-btn operational-btn" onclick="show(this)">&percnt;</button>
+                        <button class="primary-btn" onclick="show(this)">0</button>
+                        <button class="primary-btn" onclick="show(this)">.</button>
+                        <button class="primary-btn">?</button>
+                        <button class="primary-btn operational-btn" onclick="show(this)">&plus;</button>
+                        <button class="primary-btn operational-btn" onclick="result()">&equals;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
