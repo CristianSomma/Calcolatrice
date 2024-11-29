@@ -16,6 +16,8 @@ function show(btnClicked) {
     // Se il carattere da inserire appartiene ad un array ma è preceduto da un altro simbolo non viene inserito
     if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(btnClicked.innerText)) {
         valueToDisplay += ''
+    } else if (btnClicked.innerText === '%'){
+        valueToDisplay += '%×'
     } else {
         valueToDisplay += btnClicked.innerText;    
     }
@@ -56,7 +58,6 @@ function brackets() {
 function result() {
     // Prende come valore finale per eseguire l'operazione il valore all'interno del display
     displayedValue = document.getElementById('value-displayer').value;
-
     // Elemento della lista Cronologia creato
     let historyElement = document.createElement('li');
     // Viene aggiunta una classe per gli stili all'elemento della lista
@@ -80,10 +81,18 @@ function result() {
     .replace(/÷/g, '/')
     .replace(/−/g, '-');
     
-    // Valuta in codice una stringa, così che le operazioni vengano eseguite
-    let resultingValue = eval(evaluatableText);
-    // Il risultato è stampato nel displayer
-    document.getElementById('value-displayer').value = resultingValue;
+    if(eval(evaluatableText) === undefined){
+        let numbersDisplayer = document.getElementById('numbers-display');
+        numbersDisplayer.style.borderColor = 'red';
+        numbersDisplayer.color = 'red';
+        numbersDisplayer.value = 'ERROR'
+    }else{
+        // Valuta in codice una stringa, così che le operazioni vengano eseguite
+        let resultingValue = eval(evaluatableText);
+        // Il risultato è stampato nel displayer
+        document.getElementById('value-displayer').value = resultingValue;
+    }
+    
     // Sincronizzazione
     displayedValue = document.getElementById('value-displayer').value;
 }
@@ -91,6 +100,10 @@ function result() {
 function showHistory(btnClicked){
     document.getElementById('value-displayer').value = btnClicked.innerText;
     displayedValue = document.getElementById('value-displayer').value;
+}
+
+function deleteLast(){
+    // ...
 }
 
 function reset() {

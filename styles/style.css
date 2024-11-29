@@ -85,6 +85,9 @@ body {
 #scientific-btns-container {
     min-width: 35%;
     min-height: 100%;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
 }
 
 .primary-btn {
@@ -118,7 +121,7 @@ body {
     background-color: transparent;
     border: none;
     outline: none;
-    font-size: 2rem;
+    font-size: 3rem;
 }
 
 #history-list {
