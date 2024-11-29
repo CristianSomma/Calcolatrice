@@ -1,25 +1,79 @@
-let displayedValue;
+let displayedValue = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Valore già inserito
     displayedValue = document.getElementById('value-displayer').value;
 })
 
-function show(btnClicked) {
+// Alla pressione di un tasto qualunque della tastiera
+document.addEventListener('keydown', (keyEvent) => {
+    // Tutti gli elementi non validi si trovano in questo array
+    const invalidSymbols = [
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        '"', '#', '$', '&', '£', '€',  '\'', ',', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~'
+    ];
+
+    // Se il tasto premuto è nell'array dei caratteri invalidi non viene inserito
+    if(invalidSymbols.includes(keyEvent.key)){
+        keyEvent.preventDefault();
+    }else{
+
+    // Quando viene cliccato il tasto enter esegue l'operazione inserita
+    // Quando premo '/' si usa keyEvent.preventDefault() per bloccare l'inserimento del simbolo della tastiera e viene sostituito con il simbolo deciso
+    // Lo stesso vale per '*'
+        switch (keyEvent.key) {
+            case 'Enter':
+                result();
+                break;
+            case '/':
+                keyEvent.preventDefault();
+                show(null, '÷');            
+                break;
+            case '*':
+                keyEvent.preventDefault();
+                show(null, '×');            
+                break;
+            case '-':
+                keyEvent.preventDefault();
+                show(null, '-');            
+                break;
+            case '+':
+                keyEvent.preventDefault();
+                show(null, '+');            
+                break;
+            case '%':
+                keyEvent.preventDefault();
+                show(null, '%×')
+                break;
+        }    
+
+        // Faccio questo poiché all'inserimento della prima cifra il valore è per qualche motivo ""
+        displayedValue = `${keyEvent.key}${document.getElementById('value-displayer').value}`
+    }
+    
+})
+
+// Viene mostrato nel campo di input il valore del bottone premuto o del simbolo passato
+function show(btnClicked, keySymbol) {
     // Valore da mostrare
     let valueToDisplay = '';
+    // Se il valore del bottone è null allora la variabile assume il valore del secondo parametro
+    let value = btnClicked === null ? keySymbol : btnClicked.innerText;
     // Indice dell'ultimo carattere inserito
     const lastChar = displayedValue.length-1;
     // Array contenente gli elementi da controllare
-    const symbolsArray = ['×', '÷', '−', '+', '%'];
+    const symbolsArray = ['×', '÷', '-', '+', '%'];
 
     // Se il carattere da inserire appartiene ad un array ma è preceduto da un altro simbolo non viene inserito
-    if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(btnClicked.innerText)) {
-        valueToDisplay += ''
-    } else if (btnClicked.innerText === '%'){
-        valueToDisplay += '%×'
+    if((value === symbolsArray[0] || value === symbolsArray[1] || value === symbolsArray[4]) && (displayedValue.length === 0)){
+        valueToDisplay += '';
+    } else if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(value)) {
+        valueToDisplay += '';
+    } else if (value === symbolsArray[4]){
+        valueToDisplay += '%×';
     } else {
-        valueToDisplay += btnClicked.innerText;    
+        valueToDisplay += value;    
     }
 
     // Viene mostrato il valore inserito
@@ -58,6 +112,49 @@ function brackets() {
 function result() {
     // Prende come valore finale per eseguire l'operazione il valore all'interno del display
     displayedValue = document.getElementById('value-displayer').value;
+
+    // Creo una stringa in cui i valori non valutabili sono sostituiti con gli operatori originali
+    let evaluatableText = displayedValue
+    .replace(/×/g, '*')
+    .replace(/÷/g, '/')
+    .replace(/-/g, '-');
+    
+    // Uso try catch per eseguire un determinato codice se eval() ritorna un errore.
+    try {
+        // Valuta in codice una stringa, così che le operazioni vengano eseguite
+        let resultingValue = eval(evaluatableText);
+        // Il risultato è stampato nel displayer
+        document.getElementById('value-displayer').value = resultingValue;
+        // Funzione che crea un nuovo elemento cronologia
+        newHistory();
+    } catch (error) {
+        let numbersDisplayer = document.getElementById('numbers-display');
+        numbersDisplayer.style.borderColor = 'red';
+        document.getElementById('value-displayer').value = 'ERROR';
+    }
+    
+    // Sincronizzazione
+    displayedValue = document.getElementById('value-displayer').value;
+}
+
+function showHistory(btnClicked){
+    document.getElementById('value-displayer').value = btnClicked.innerText;
+    displayedValue = document.getElementById('value-displayer').value;
+}
+
+function deleteLast(){
+    displayedValue = displayedValue.substring(0, displayedValue.length-1);
+    document.getElementById('value-displayer').value = displayedValue;
+}
+
+function reset() {
+    // Svuota il displayer
+    document.getElementById('value-displayer').value = '';
+    // Sincronizzazione del valore mostrato e del valore interno
+    displayedValue = document.getElementById('value-displayer').value
+}
+
+function newHistory(){
     // Elemento della lista Cronologia creato
     let historyElement = document.createElement('li');
     // Viene aggiunta una classe per gli stili all'elemento della lista
@@ -73,42 +170,5 @@ function result() {
     // Il bottone viene inserito nell'elemento della lista
     historyElement.appendChild(historyBtn);
     // L'elemento della lista viene inserito nella lista
-    document.getElementById('history-list').appendChild(historyElement)
-
-    // Creo una stringa in cui i valori non valutabili sono sostituiti con gli operatori originali
-    let evaluatableText = displayedValue
-    .replace(/×/g, '*')
-    .replace(/÷/g, '/')
-    .replace(/−/g, '-');
-    
-    if(eval(evaluatableText) === undefined){
-        let numbersDisplayer = document.getElementById('numbers-display');
-        numbersDisplayer.style.borderColor = 'red';
-        numbersDisplayer.color = 'red';
-        numbersDisplayer.value = 'ERROR'
-    }else{
-        // Valuta in codice una stringa, così che le operazioni vengano eseguite
-        let resultingValue = eval(evaluatableText);
-        // Il risultato è stampato nel displayer
-        document.getElementById('value-displayer').value = resultingValue;
-    }
-    
-    // Sincronizzazione
-    displayedValue = document.getElementById('value-displayer').value;
-}
-
-function showHistory(btnClicked){
-    document.getElementById('value-displayer').value = btnClicked.innerText;
-    displayedValue = document.getElementById('value-displayer').value;
-}
-
-function deleteLast(){
-    // ...
-}
-
-function reset() {
-    // Svuota il displayer
-    document.getElementById('value-displayer').value = '';
-    // Sincronizzazione del valore mostrato e del valore interno
-    displayedValue = document.getElementById('value-displayer').value
+    document.getElementById('history-list').appendChild(historyElement);
 }
