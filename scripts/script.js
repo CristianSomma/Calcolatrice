@@ -42,10 +42,6 @@ document.addEventListener('keydown', (keyEvent) => {
                 keyEvent.preventDefault();
                 show(null, '+');            
                 break;
-            case '%':
-                keyEvent.preventDefault();
-                show(null, '%×')
-                break;
         }    
 
         // Faccio questo poiché all'inserimento della prima cifra il valore è per qualche motivo ""
@@ -70,8 +66,6 @@ function show(btnClicked, keySymbol) {
         valueToDisplay += '';
     } else if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(value)) {
         valueToDisplay += '';
-    } else if (value === symbolsArray[4]){
-        valueToDisplay += '%×';
     } else {
         valueToDisplay += value;    
     }
@@ -143,7 +137,8 @@ function showHistory(btnClicked){
 }
 
 function deleteLast(){
-    displayedValue = displayedValue.substring(0, displayedValue.length-1);
+    displayedValue = document.getElementById('value-displayer').value
+    displayedValue = displayedValue.slice(0, displayedValue.length-1);
     document.getElementById('value-displayer').value = displayedValue;
 }
 
