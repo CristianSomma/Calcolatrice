@@ -42,7 +42,11 @@ document.addEventListener('keydown', (keyEvent) => {
                 keyEvent.preventDefault();
                 show(null, '+');            
                 break;
-        }    
+            case '.':
+                keyEvent.preventDefault();
+                show(null, '.');
+                break;
+            }    
 
         // Faccio questo poiché all'inserimento della prima cifra il valore è per qualche motivo ""
         displayedValue = `${keyEvent.key}${document.getElementById('value-displayer').value}`
@@ -50,12 +54,9 @@ document.addEventListener('keydown', (keyEvent) => {
     
 })
 
-// Viene mostrato nel campo di input il valore del bottone premuto o del simbolo passato
-function show(btnClicked, keySymbol) {
+function valueController (value){
     // Valore da mostrare
     let valueToDisplay = '';
-    // Se il valore del bottone è null allora la variabile assume il valore del secondo parametro
-    let value = btnClicked === null ? keySymbol : btnClicked.innerText;
     // Indice dell'ultimo carattere inserito
     const lastChar = displayedValue.length-1;
     // Array contenente gli elementi da controllare
@@ -66,12 +67,29 @@ function show(btnClicked, keySymbol) {
         valueToDisplay += '';
     } else if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(value)) {
         valueToDisplay += '';
+    } else if (value === '.') {
+        valueToDisplay += '.'
+        // Al click del bottone punto viene disabilitato il bottone per evitare che si possa reinserire nello stesso numero
+        document.getElementById('decimal-point-btn').disabled = true;
+    } else if (symbolsArray.includes(displayedValue[lastChar])){
+        // Se l'ultimo carattere inserito è un segno viene riabilitato il bottone del punto
+        document.getElementById('decimal-point-btn').disabled = false;
+        // Valore premuto viene inserito
+        valueToDisplay += value;
     } else {
         valueToDisplay += value;    
     }
 
+    return valueToDisplay;
+}
+
+// Viene mostrato nel campo di input il valore del bottone premuto o del simbolo passato
+function show(btnClicked, keySymbol) {
+    // Se il valore del bottone è null allora la variabile assume il valore del secondo parametro
+    let value = btnClicked === null ? keySymbol : btnClicked.innerText;
+    
     // Viene mostrato il valore inserito
-    document.getElementById('value-displayer').value += valueToDisplay;
+    document.getElementById('value-displayer').value += valueController(value);
 
     // Viene aggiornata la variabile per comprendere quello che è stato appena aggiunto
     displayedValue = document.getElementById('value-displayer').value
@@ -103,6 +121,18 @@ function brackets() {
     displayedValue = document.getElementById('value-displayer').value;
 }
 
+function transformPercentage (valueToCheck) {
+    // regex /\d+%/g significa tutte le cifre da almeno 1 a n e percentuale
+
+    // valueToCheck diventa il suo valore ma ogni match effettuato viene rimpiazzato dal corrispondente numerico
+    valueToCheck = valueToCheck.replace(/\d+%/g, (match) => {
+        let modifiedValue = parseInt(match.slice(0, -1))/100;
+        return modifiedValue;
+    })
+
+    return valueToCheck;
+}
+
 function result() {
     // Prende come valore finale per eseguire l'operazione il valore all'interno del display
     displayedValue = document.getElementById('value-displayer').value;
@@ -113,6 +143,9 @@ function result() {
     .replace(/÷/g, '/')
     .replace(/-/g, '-');
     
+
+    evaluatableText = transformPercentage(evaluatableText);
+
     // Uso try catch per eseguire un determinato codice se eval() ritorna un errore.
     try {
         // Valuta in codice una stringa, così che le operazioni vengano eseguite
@@ -137,8 +170,11 @@ function showHistory(btnClicked){
 }
 
 function deleteLast(){
+    // Aggiorno il valore di display 
     displayedValue = document.getElementById('value-displayer').value
+    // Rimuovo l'ultimo carattere assegnando al valore di display la sottostringa dal primo al penultimo carattere
     displayedValue = displayedValue.slice(0, displayedValue.length-1);
+    // Mostro il valore di display
     document.getElementById('value-displayer').value = displayedValue;
 }
 
