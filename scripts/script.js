@@ -2,7 +2,7 @@ let displayedValue = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Valore già inserito
-    displayedValue = document.getElementById('value-displayer').value;
+    updateDisplayedValue();
 })
 
 // Alla pressione di un tasto qualunque della tastiera
@@ -25,6 +25,10 @@ document.addEventListener('keydown', (keyEvent) => {
         switch (keyEvent.key) {
             case 'Enter':
                 result();
+                break;
+            case 'Backspace':
+                keyEvent.preventDefault();
+                deleteLast();
                 break;
             case '/':
                 keyEvent.preventDefault();
@@ -65,17 +69,25 @@ function valueController (value){
     // Se il carattere da inserire appartiene ad un array ma è preceduto da un altro simbolo non viene inserito
     if((value === symbolsArray[0] || value === symbolsArray[1] || value === symbolsArray[4]) && (displayedValue.length === 0)){
         valueToDisplay += '';
-    } else if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(value)) {
+    } else if (symbolsArray.includes(displayedValue[lastChar]) && symbolsArray.includes(value)) {   // Se l'ultimo carattere nel display e quello appena inserito sono entrambi operatori, il secondo non viene inserito
         valueToDisplay += '';
     } else if (value === '.') {
-        valueToDisplay += '.'
-        // Al click del bottone punto viene disabilitato il bottone per evitare che si possa reinserire nello stesso numero
-        document.getElementById('decimal-point-btn').disabled = true;
+        // Se il bottone risulta disabilitato significa che nel numero corrente è già presente un punto
+        if(document.getElementById('decimal-point-btn').disabled){
+            valueToDisplay += '';
+        }else{
+            valueToDisplay += '.'
+            // Al click del bottone punto viene disabilitato il bottone per evitare che si possa reinserire nello stesso numero
+            document.getElementById('decimal-point-btn').disabled = true;
+        }
     } else if (symbolsArray.includes(displayedValue[lastChar])){
         // Se l'ultimo carattere inserito è un segno viene riabilitato il bottone del punto
         document.getElementById('decimal-point-btn').disabled = false;
         // Valore premuto viene inserito
         valueToDisplay += value;
+    } else if (symbolsArray.includes(value)){
+        valueToDisplay += value;
+        document.getElementById('decimal-point-btn').disabled = false;
     } else {
         valueToDisplay += value;    
     }
@@ -92,7 +104,7 @@ function show(btnClicked, keySymbol) {
     document.getElementById('value-displayer').value += valueController(value);
 
     // Viene aggiornata la variabile per comprendere quello che è stato appena aggiunto
-    displayedValue = document.getElementById('value-displayer').value
+    updateDisplayedValue()
 }
 
 function brackets() {
@@ -118,7 +130,7 @@ function brackets() {
     }
 
     // Sincronizzazione
-    displayedValue = document.getElementById('value-displayer').value;
+    updateDisplayedValue();
 }
 
 function transformPercentage (valueToCheck) {
@@ -133,9 +145,51 @@ function transformPercentage (valueToCheck) {
     return valueToCheck;
 }
 
+// Funzione che rimpiazza ogni match con la regex (parametro search) con il suo valore modificato secondo l'operazione associata 
+function transformingFunc (value, search, operation){
+    let correctValue = value.replace(search, (match) => {
+        let modifiedValue = operation(match);
+        return modifiedValue;
+    })
+
+    return correctValue;
+}
+
+
+function transformScientifics(valueToCheck){
+    /*
+    Ho creato un array contenente degli oggetti con proprietà regex, ovvero il pattern di caratteri che devono essere riconosciuti
+    ed estrapolati, e il metodo operation che contiene appunto l'operazione da effettuare.
+    L'array è assolutamente antiestetico ma mi risparmiava il dover scrivere a mano ogni volta il richiamo della funzione che effettuava il match e la
+    sostituzione che avrebbe reso ancora più lungo il tutto. 
+    */
+
+    const regexOperations = [
+        {regex: /\d+²/g, operation: (match) => {return Math.pow(parseInt(match.slice(0, -1)), 2);}},
+        {regex: /\d+³/g, operation: (match) => {return Math.pow(parseInt(match.slice(0, -1)), 3)}},
+        {regex: /√\(\d+\)/g, operation: (match) => {return Math.sqrt(parseInt(match.slice(2, match.length-1)))}},
+        {regex: /∛\(\d+\)/g, operation: (match) => {return Math.cbrt(parseInt(match.slice(2, match.length-1)))}},
+        {regex: /ln\(\d+\)/g, operation: (match) => {return Math.log(match.slice(3, match.length-1))}},
+        {regex: /log\(\d+\)/g, operation: (match) => {return Math.log10(match.slice(4, match.length-1))}},
+        // Il numero inserito viene moltiplicato per il pi greco e diviso per 180 gradi cosi che diventa in radiale
+        {regex: /sin\(\d+\)/g, operation: (match) => {return Math.sin(match.slice(4, match.length-1) * Math.PI / 180)}},
+        {regex: /cos\(\d+\)/g, operation: (match) => {return Math.cos(match.slice(4, match.length-1) * Math.PI / 180)}},
+        {regex: /tan\(\d+\)/g, operation: (match) => {return Math.tan(match.slice(4, match.length-1) * Math.PI / 180)}},
+        // {regex: , operation: (match) => {return Math.}},
+    ]
+
+    // Per ogni oggetto nell'array viene chiamata la funzione transforminfFunc()
+    regexOperations.forEach(({regex, operation}) => {
+        valueToCheck = transformingFunc(valueToCheck, regex, operation); 
+    })
+
+    // Ritorna il valore manipolato
+    return valueToCheck;
+}
+
 function result() {
     // Prende come valore finale per eseguire l'operazione il valore all'interno del display
-    displayedValue = document.getElementById('value-displayer').value;
+    updateDisplayedValue();
 
     // Creo una stringa in cui i valori non valutabili sono sostituiti con gli operatori originali
     let evaluatableText = displayedValue
@@ -143,8 +197,11 @@ function result() {
     .replace(/÷/g, '/')
     .replace(/-/g, '-');
     
-
+    // Trasforma i valori percentuali in un valore numerico, dividendo il numero affiancato a % per 100
     evaluatableText = transformPercentage(evaluatableText);
+
+    // Trasforma tutte le operazioni speciali nei loro risultati
+    evaluatableText = transformScientifics(evaluatableText)
 
     // Uso try catch per eseguire un determinato codice se eval() ritorna un errore.
     try {
@@ -161,17 +218,23 @@ function result() {
     }
     
     // Sincronizzazione
-    displayedValue = document.getElementById('value-displayer').value;
+    updateDisplayedValue();
 }
 
+// Funzione che al click dell'elemento nella cronologia lo reinserisce nel display principale
 function showHistory(btnClicked){
     document.getElementById('value-displayer').value = btnClicked.innerText;
-    displayedValue = document.getElementById('value-displayer').value;
+    // Aggiornamento del displayValue
+    updateDisplayedValue();
 }
 
 function deleteLast(){
     // Aggiorno il valore di display 
-    displayedValue = document.getElementById('value-displayer').value
+    updateDisplayedValue();
+    // Se l'ultimo carattere è un punto allora viene riabilitato il bottone del punto
+    if(displayedValue.charAt(displayedValue.length-1) === '.'){
+        document.getElementById('decimal-point-btn').disabled = false;
+    }
     // Rimuovo l'ultimo carattere assegnando al valore di display la sottostringa dal primo al penultimo carattere
     displayedValue = displayedValue.slice(0, displayedValue.length-1);
     // Mostro il valore di display
@@ -179,10 +242,12 @@ function deleteLast(){
 }
 
 function reset() {
+    // Riabilita il bottone del punto
+    document.getElementById('decimal-point-btn').disabled = false;
     // Svuota il displayer
     document.getElementById('value-displayer').value = '';
     // Sincronizzazione del valore mostrato e del valore interno
-    displayedValue = document.getElementById('value-displayer').value
+    updateDisplayedValue();
 }
 
 function newHistory(){
@@ -202,4 +267,17 @@ function newHistory(){
     historyElement.appendChild(historyBtn);
     // L'elemento della lista viene inserito nella lista
     document.getElementById('history-list').appendChild(historyElement);
+}
+
+// Funzione per agevolare l'update del displayValue
+function updateDisplayedValue () {
+    displayedValue = document.getElementById('value-displayer').value;
+}
+
+function changeColorMode(){
+    if(document.getElementById('colorMode').getAttribute('href') === 'styles/light.css'){
+        document.getElementById('colorMode').setAttribute('href', 'styles/dark.css');
+    }else{
+        document.getElementById('colorMode').setAttribute('href', 'styles/light.css'); 
+    }
 }

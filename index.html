@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles/light.css">
+    <link rel="stylesheet" href="styles/light.css" id="colorMode">
     <link rel="stylesheet" href="styles/style.css">
     <script src="scripts/script.js"></script>
     <meta charset="UTF-8">
@@ -12,9 +12,9 @@
     <div id="main-window">
         <div class="flex-row" id="nav-container">
             <ul class="flex-row" id="nav-list">
-                <li>Text</li>
-                <li>Title</li>
-                <li>Text</li>
+                <li>Cristian Somma</li>
+                <li>Online Calculator</li>
+                <li><button id="colorMode-btn" onclick="changeColorMode()">Dark mode</button></li>
             </ul>
         </div>
         <div class="flex-row" id="calculator-container">
@@ -29,7 +29,32 @@
                 </div>
                 <div class="flex-row" id="buttons-container">
                     <div id="scientific-btns-container">
-                        Scientific Btns
+                        <button class="primary-btn small-text" onclick="show(null, '&sup2;')">x&sup2;</button>
+                        <button class="primary-btn small-text" onclick="show(null, '&sup3;')">x&sup3;</button>
+                        <button class="primary-btn small-text" onclick="show(null, '&Sqrt;(')">&Sqrt;x</button>
+                        <button class="primary-btn small-text" onclick="show(null, '&#8731(')">&#8731;x</button>
+                        <button class="primary-btn small-text" onclick="show(null, 'ln(')">ln</button>
+                        <button class="primary-btn small-text" onclick="show(null, 'log(')">log<sub>10</sub></button>
+                        <button class="primary-btn small-text" onclick="show(null, '!')">x!</button>
+                        <button class="primary-btn small-text" onclick="show(null, 'sin(')">sin</button>
+                        <button class="primary-btn small-text" onclick="show(null, 'cos(')">cos</button>
+                        <button class="primary-btn small-text" onclick="show(null, 'tan(')">tan</button>
+                        <button class="primary-btn small-text" onclick="show(null, Math.random())">Rand</button>
+                        <button class="primary-btn small-text" onclick="show(null, Math.PI)">π</button>
+                        <!-- Bottoni per altre funzioni... -->
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                        <button class="primary-btn small-text" onclick=""></button>
+                    
                     </div>
                     <div id="main-btns-container">
                         <button class="primary-btn" onclick="show(this)">7</button>
